@@ -1,0 +1,50 @@
+Как обновить ffmpeg:
+git clone https://git.ffmpeg.org/ffmpeg.git
+
+Как обновить x264:
+git clone http://git.videolan.org/git/x264.git
+
+Как обновить opus:
+Качаем свежую версию отсюда:
+http://opus-codec.org/
+
+Как обновить OpenCV:
+git clone https://github.com/opencv/opencv.git
+git clone https://github.com/opencv/opencv_contrib.git
+
+Как обновить libfreetype:
+Скачать свежую версию отсюда:
+https://sourceforge.net/projects/freetype/files/
+
+Качаем свежий, стабильный NDK для Linux отсюда:
+https://developer.android.com/ndk/downloads/index.html
+
+Дальше надо build standalone toolchain, это то чем мы будем компилить всё под Android.
+Есть скрипт, который называется build_toolchain, в нем указан номер Android платформы и директории ведущие к NDK и директория куда toolchain будет сохранена. Убедитесь, что директории существуют и ведут куда нужно, и номер платформы тоже проверьте, из-за него что-то может не собраться в дальнейшем. В общем это важно, директории и номер. Запомнили? Идем дальше.
+
+Собрали вы значит toolchain. Теперь его надо использовать для собирания всех библиотек.
+
+Для компиляции используется Clang, а ему нужен gas-preprocessor.
+Делается это так:
+su
+wget --no-check-certificate https://raw.githubusercontent.com/FFmpeg/gas-preprocessor/master/gas-preprocessor.pl
+chmod +x gas-preprocessor.pl 
+mv gas-preprocessor.pl $(which gas-preprocessor.pl)
+
+В configuration файлы ffmpeg'а необходимо заменить значение переменной SLIBNAME_WITH_VERSION, в итоге строчка присваивания значения должна выглядеть так:
+SLIBNAME_WITH_VERSION='$(NAME)-$(LIBMAJOR)$(SLIBSUF)'
+
+В итоге файлы будут иметь имя вида "name-0.so"
+
+Затем в общем-то надо запустить 3 скрипта вида "build_name_android.sh" в таком порядке:
+
+freetype
+opus
+x264
+ffmpeg
+
+затем идем в OpenCV
+
+компилим OpenCV
+
+собираем prebuilt папку и переносим в проект
